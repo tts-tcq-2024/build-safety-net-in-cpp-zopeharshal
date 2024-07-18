@@ -1,7 +1,3 @@
-#include "Soundex.h"
-#include <cctype>
-#include <string>
-
 char getSoundexCode(char c) {
     c = toupper(c);
     switch (c) {
@@ -11,16 +7,23 @@ char getSoundexCode(char c) {
         case 'L': return '4';
         case 'M': case 'N': return '5';
         case 'R': return '6';
-        default: return '0'; // For A, E, I, O, U, H, W, Y
+        default: return '0'; // Ignored characters
     }
 }
 
-bool isIgnoredChar(char c) {
+bool shouldIgnoreChar(char c) {
     return std::string("AEIOUHYW").find(toupper(c)) != std::string::npos;
 }
 
-bool isSameCode(char current, char previous) {
-    return current == previous;
+std::string processCharacter(char currentChar, char& prevCode, std::string& soundex) {
+    if (shouldIgnoreChar(currentChar)) return "";
+
+    char currentCode = getSoundexCode(currentChar);
+    if (currentCode != '0' && currentCode != prevCode) {
+        soundex += currentCode;
+        prevCode = currentCode;
+    }
+    return "";
 }
 
 std::string generateSoundex(const std::string& name) {
@@ -30,14 +33,7 @@ std::string generateSoundex(const std::string& name) {
     char prevCode = getSoundexCode(name[0]);
 
     for (size_t i = 1; i < name.length() && soundex.length() < 4; ++i) {
-        char currentChar = name[i];
-        if (isIgnoredChar(currentChar)) continue;
-
-        char currentCode = getSoundexCode(currentChar);
-        if (currentCode != '0' && !isSameCode(currentCode, prevCode)) {
-            soundex += currentCode;
-            prevCode = currentCode;
-        }
+        processCharacter(name[i], prevCode, soundex);
     }
 
     while (soundex.length() < 4) {
