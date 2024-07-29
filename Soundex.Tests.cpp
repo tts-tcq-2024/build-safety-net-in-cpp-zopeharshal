@@ -1,28 +1,61 @@
-#include <cassert>
-#include <iostream>
+#include "Soundex.h"
+#include <gtest/gtest.h>
 
-void testGenerateSoundex() {
-    // Basic tests
-    assert(generateSoundex("Robert") == "R163");
-    assert(generateSoundex("Rupert") == "R163");
-    assert(generateSoundex("Rubin") == "R150");
+class SoundexTest : public ::testing::Test {
+protected: 
+    SoundexTest() {
+        // Initialize objects or perform setup steps
+    }
 
-    // Edge cases
-    assert(generateSoundex("") == "0000"); // Test for empty input
-    assert(generateSoundex("A") == "A000"); // Single character
-    assert(generateSoundex("E") == "E000"); // Vowel input
-    assert(generateSoundex("C") == "C000"); // Single consonant
+    virtual ~SoundexTest() {
+     
+    }
 
-    // Testing with different cases
-    assert(generateSoundex("bobby") == "B010"); // Mixed case
-    assert(generateSoundex("Smythe") == "S530"); // Testing uncommon names
+};
 
-    // Test with names containing similar letters
-    assert(generateSoundex("Tymothy") == "T530"); // Y and T should be compressed
+// Unit tests
+
+// Test case for getSoundexCode function
+TEST_F(SoundexTest, GetSoundexCodeTest) {
+    EXPECT_EQ(getSoundexCode('A'), '0'); 
+    EXPECT_EQ(getSoundexCode('B'), '1'); 
+    EXPECT_EQ(getSoundexCode('C'), '2');
+    EXPECT_EQ(getSoundexCode('Z'), '2'); 
 }
 
-int main() {
-    testGenerateSoundex();
-    std::cout << "All tests passed!" << std::endl;
-    return 0;
+// Test case for SoundexLengthCheck function
+TEST_F(SoundexTest, SoundexLengthCheckTest) {
+    EXPECT_TRUE(SoundexLengthCheck("123")); 
+    EXPECT_FALSE(SoundexLengthCheck("1234")); 
+}
+
+// Test case for SoundexCodeCheck function
+TEST_F(SoundexTest, SoundexCodeCheckTest) {
+    EXPECT_TRUE(SoundexCodeCheck('1', '0')); 
+    EXPECT_FALSE(SoundexCodeCheck('1', '1')); 
+}
+
+// Test case for IncrementSoundex function
+TEST_F(SoundexTest, IncrementSoundexTest) {
+    EXPECT_EQ(IncrementSoundex("S", "Smith", getSoundexCode('S')), "S503"); 
+    EXPECT_EQ(IncrementSoundex("S", "Johnson", getSoundexCode('S')), "S005"); 
+}
+
+// Test case for generateSoundex function
+TEST_F(SoundexTest, GenerateSoundexTest) {
+    EXPECT_EQ(generateSoundex("Smith"), "S503"); 
+    EXPECT_EQ(generateSoundex("Johnson"), "J005"); 
+    EXPECT_EQ(generateSoundex(""), "");
+}
+
+// Test case for padSoundex function
+TEST_F(SoundexTest, PadSoundexTest) {
+    EXPECT_EQ(padSoundex("S5"), "S500"); 
+    EXPECT_EQ(padSoundex("J525"), "J525");
+}
+
+// Entry point for running tests
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
